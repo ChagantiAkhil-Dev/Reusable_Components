@@ -1,0 +1,69 @@
+{
+  "DisplayName": "ReadExcelFile",
+  "Tooltip": null,
+  "HelpLink": null,
+  "Color": null,
+  "OriginalIconFileName": null,
+  "Arguments": [
+    {
+      "Name": "in_str_SheetName",
+      "DisplayName": "in_str_SheetName",
+      "Category": null,
+      "Tooltip": "Provide the Sheet name to read",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_str_InputFilePath",
+      "DisplayName": "in_str_InputFilePath",
+      "Category": null,
+      "Tooltip": "Provide the file name to read",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_bool_HasHeaders",
+      "DisplayName": "in_bool_HasHeaders",
+      "Category": null,
+      "Tooltip": "Set to False, if there are no headers",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_str_Range",
+      "DisplayName": "in_str_Range",
+      "Category": null,
+      "Tooltip": "Provide the range to read from excel sheet. Leave blank to read full sheet",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "out_dt_ExcelData",
+      "DisplayName": "out_dt_ExcelData",
+      "Category": null,
+      "Tooltip": "Stores the excel data",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    }
+  ]
+}

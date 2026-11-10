@@ -1,0 +1,175 @@
+<Activity xmlns:ss="clr-namespace:System.Security;assembly=System.Private.CoreLib" mc:Ignorable="sap sap2010" x:Class="SendEmail" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property sap2010:Annotation.AnnotationText="Provide SMTP Email Port number" Name="in_str_MailPort" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Provide Sender Email Id" Name="in_str_EmailSender" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Provide SMTP Email Server" Name="in_str_EmailServer" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Provide Email Body" Name="in_str_EmailBody" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Provide the attachments file path. If multiple attachments, separate by semicolon" Name="in_str_Attachment" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Provide Email Subject" Name="in_str_EmailSubject" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Provide the email recipients. If multiple recipients, separate by semicolon" Name="in_str_EmailTo" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. SMTP user name. Leave empty for an anonymous relay (no authentication)." Name="in_str_Username" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. SMTP password as a SecureString, e.g. from Get Credential. Ignored when the user name is empty." Name="in_secureStr_Password" Type="InArgument(ss:SecureString)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. True to connect with SSL/TLS (typical ports 465 or 587). Default False." Name="in_bool_EnableSsl" Type="InArgument(x:Boolean)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap:VirtualizedContainerService.HintSize>480,1049</sap:VirtualizedContainerService.HintSize>
+  <sap2010:WorkflowViewState.IdRef>SendEmail_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Reflection</x:String>
+      <x:String>System.Linq.Expressions</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualStudio.Services.Common</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Composition</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Reflection.DispatchProxy</AssemblyReference>
+      <AssemblyReference>System.Reflection.TypeExtensions</AssemblyReference>
+      <AssemblyReference>System.Reflection.Metadata</AssemblyReference>
+      <AssemblyReference>UiPath.Excel.Activities.Design</AssemblyReference>
+      <AssemblyReference>System.Memory.Data</AssemblyReference>
+      <AssemblyReference>System.Console</AssemblyReference>
+      <AssemblyReference>System.Security.Permissions</AssemblyReference>
+      <AssemblyReference>System.Configuration.ConfigurationManager</AssemblyReference>
+      <AssemblyReference>System.ComponentModel</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.Private.Uri</AssemblyReference>
+      <AssemblyReference>System.Private.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Linq.Async</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.Collections.NonGeneric</AssemblyReference>
+      <AssemblyReference>System.Linq.Expressions</AssemblyReference>
+      <AssemblyReference>System.Private.DataContractSerialization</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Formatters</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Primitives</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Workflow to send emails to desired recievers, attachments, and messages&#xA;&#xA;Precondition: Situation with a subject, message, email address, and, if applicable, attachment(s)&#xD;&#xA;Postcondition: SMTP email will be sent&#xA;&#xA;Post: Email Sent &#xA;&#xA;in:&#xA;in_Config&#xA;in_Subject&#xA;in_Message&#xA;in_Attachment" DisplayName="SendEmail" sap:VirtualizedContainerService.HintSize="1191,1177" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="str_ExcpDetails" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:LogMessage DisplayName="Log Message - Start" sap:VirtualizedContainerService.HintSize="452,175" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;SendEmail_SMTP started processing&quot;]" />
+    <ui:InvokeCode ContinueOnError="{x:Null}" Code="str_ExcpDetails = &quot;&quot;&#xD;&#xA;Dim smtpClient As System.Net.Mail.SmtpClient = Nothing&#xD;&#xA;Dim mailMsg As System.Net.Mail.MailMessage = Nothing&#xD;&#xA;Try&#xD;&#xA;&#x9;smtpClient = New System.Net.Mail.SmtpClient(in_str_EmailServer)&#xD;&#xA;&#x9;mailMsg = New System.Net.Mail.MailMessage&#xD;&#xA;&#x9;Dim sender As New System.Net.Mail.MailAddress(in_str_EmailSender)&#xD;&#xA;&#x9;&#xD;&#xA;&#x9;'Check if attachment exist&#xD;&#xA;&#x9;If Not String.IsNullOrWhiteSpace(in_str_Attachment) Then&#xD;&#xA;&#x9;    For Each attachmentPath As String In in_str_Attachment.Split(&quot;;&quot;c)&#xD;&#xA;&#x9;        attachmentPath = attachmentPath.Trim()&#xD;&#xA;&#x9;        If Not String.IsNullOrWhiteSpace(attachmentPath) AndAlso IO.File.Exists(attachmentPath) Then&#xD;&#xA;&#x9;            mailMsg.Attachments.Add(New System.Net.Mail.Attachment(attachmentPath))&#xD;&#xA;&#x9;        End If&#xD;&#xA;&#x9;    Next&#xD;&#xA;&#x9;End If&#xD;&#xA;&#x9;&#xD;&#xA;&#x9;'Loop through and add all recipents to the To Collection&#xD;&#xA;&#x9;For Each mail As String In in_str_EmailTo.Split(&quot;;&quot;C)&#xD;&#xA;&#x9; If (Not String.IsNullOrWhiteSpace(mail))&#xD;&#xA;&#x9;  mailMsg.To.Add(mail)&#xD;&#xA;&#x9; End If&#xD;&#xA;&#x9;Next&#xD;&#xA;&#x9;&#xD;&#xA;&#x9;mailmsg.Body  = in_str_EmailBody&#xD;&#xA;&#x9;mailMsg.Subject  = in_str_EmailSubject&#xD;&#xA;&#x9;mailMsg.From  = sender&#xD;&#xA;&#x9;mailMsg.IsBodyHtml = True&#xD;&#xA;&#x9;smtpClient.Port  = Integer.Parse(in_str_EmailPort)&#xD;&#xA;&#x9;&#xD;&#xA;&#x9;'SSL/TLS (optional)&#xD;&#xA;&#x9;smtpClient.EnableSsl = in_bool_EnableSsl&#xD;&#xA;&#x9;&#xD;&#xA;&#x9;'Authentication (optional). The SecureString goes straight into NetworkCredential, never converted to plain text.&#xD;&#xA;&#x9;If Not String.IsNullOrWhiteSpace(in_str_Username) Then&#xD;&#xA;&#x9;    smtpClient.UseDefaultCredentials = False&#xD;&#xA;&#x9;    If in_secureStr_Password IsNot Nothing Then&#xD;&#xA;&#x9;        smtpClient.Credentials = New System.Net.NetworkCredential(in_str_Username, in_secureStr_Password)&#xD;&#xA;&#x9;    Else&#xD;&#xA;&#x9;        smtpClient.Credentials = New System.Net.NetworkCredential(in_str_Username, &quot;&quot;)&#xD;&#xA;&#x9;    End If&#xD;&#xA;&#x9;End If&#xD;&#xA;&#x9;&#xD;&#xA;&#x9;smtpClient.Send(mailMsg)&#xD;&#xA;&#xD;&#xA;Catch e As Exception&#xD;&#xA;&#x9;str_ExcpDetails = &quot;SMTP email failure, due to: &quot;+e.Source+&quot; - &quot;+e.Message&#xD;&#xA;Finally&#xD;&#xA;&#x9;'Dispose releases the attachment files (they stay locked until the message is disposed)&#xD;&#xA;&#x9;If mailMsg IsNot Nothing Then mailMsg.Dispose()&#xD;&#xA;&#x9;If smtpClient IsNot Nothing Then smtpClient.Dispose()&#xD;&#xA;End Try" DisplayName="Code: Send SMTP Email" sap:VirtualizedContainerService.HintSize="452,197" sap2010:WorkflowViewState.IdRef="InvokeCode_4">
+      <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_EmailServer">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_EmailServer" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_EmailSender">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_EmailSender" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_EmailTo">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_EmailTo" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_EmailBody">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_EmailBody" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_EmailSubject">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_EmailSubject" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_EmailPort">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_MailPort" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_Attachment">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_Attachment" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_Username">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_Username" />
+        </InArgument>
+        <InArgument x:TypeArguments="ss:SecureString" x:Key="in_secureStr_Password">
+          <VisualBasicValue x:TypeArguments="ss:SecureString" ExpressionText="in_secureStr_Password" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Boolean" x:Key="in_bool_EnableSsl">
+          <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="in_bool_EnableSsl" />
+        </InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="str_ExcpDetails">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="str_ExcpDetails" />
+        </OutArgument>
+      </ui:InvokeCode.Arguments>
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+          <x:Boolean x:Key="IsPinned">False</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+    </ui:InvokeCode>
+    <If Condition="[str_ExcpDetails=&quot;&quot;]" DisplayName="If - str_ExcpDetails=&quot;&quot;" sap:VirtualizedContainerService.HintSize="452,539" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Then>
+        <Sequence DisplayName="Then" sap:VirtualizedContainerService.HintSize="450,226" sap2010:WorkflowViewState.IdRef="Sequence_40">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:LogMessage DisplayName="Log Message - in_str_EmailTo" sap:VirtualizedContainerService.HintSize="416,166" sap2010:WorkflowViewState.IdRef="LogMessage_5" Level="Info" Message="[&quot;Email sent to: &quot;+in_str_EmailTo]" />
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else" sap:VirtualizedContainerService.HintSize="450,174" sap2010:WorkflowViewState.IdRef="Sequence_41">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <Throw DisplayName="Throw - BRE - SendEmail_SMTP" Exception="[New BusinessRuleException(str_ExcpDetails)]" sap:VirtualizedContainerService.HintSize="416,114" sap2010:WorkflowViewState.IdRef="Throw_1" />
+        </Sequence>
+      </If.Else>
+    </If>
+    <ui:LogMessage DisplayName="Log Message - End" sap:VirtualizedContainerService.HintSize="452,166" sap2010:WorkflowViewState.IdRef="LogMessage_4" Level="Info" Message="[&quot;SendEmail_SMTP completed processing&quot;]" />
+  </Sequence>
+</Activity>

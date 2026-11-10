@@ -1,0 +1,33 @@
+{
+  "DisplayName": "DeleteExcelSheet",
+  "Tooltip": null,
+  "HelpLink": null,
+  "Color": null,
+  "OriginalIconFileName": null,
+  "Arguments": [
+    {
+      "Name": "in_str_ExcelFilePath",
+      "DisplayName": "in_str_ExcelFilePath",
+      "Category": null,
+      "Tooltip": "Provide the Excel file path",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_str_ExcelSheetName",
+      "DisplayName": "in_str_ExcelSheetName",
+      "Category": null,
+      "Tooltip": "Provide the Sheet name to delete",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+<Activity xmlns:ss="clr-namespace:System.Security;assembly=System.Private.CoreLib" mc:Ignorable="sap sap2010" x:Class="HttpRequestWithRetry" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property sap2010:Annotation.AnnotationText="Optional. HTTP method: GET, POST, PUT, PATCH, DELETE, HEAD or OPTIONS. Empty means GET." Name="in_str_Method" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Full URL of the request, including https://. Query-string values are not written to the log." Name="in_str_Url" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. Request headers, e.g. Authorization, Accept. Content-Type is set with in_str_ContentType instead. Headers are never logged." Name="in_dict_Headers" Type="InArgument(scg:Dictionary(x:String, x:String))" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. Request body, sent as UTF-8 text (e.g. a JSON string). Never logged." Name="in_str_Body" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. Content type of the body. Empty means application/json. Only used when a body is sent." Name="in_str_ContentType" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. Total tries including the first. 0 or less means 3." Name="in_int_MaxAttempts" Type="InArgument(x:Int32)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. Wait before the first retry, doubled on each further retry (plus up to 1 second of random jitter, capped at 60 seconds). 0 or less means 2. A Retry-After header from the server takes priority." Name="in_int_RetryDelaySeconds" Type="InArgument(x:Int32)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. Timeout for each attempt. 0 or less means 100 seconds." Name="in_int_TimeoutSeconds" Type="InArgument(x:Int32)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. POST and PATCH are retried only when this is True, because a retry can create duplicates. HTTP 429 is always retried. Default False." Name="in_bool_RetryUnsafeMethods" Type="InArgument(x:Boolean)" />
+    <x:Property sap2010:Annotation.AnnotationText="Optional. True to return the status code and error message instead of throwing when the request fails. Default False (throws)." Name="in_bool_ContinueOnError" Type="InArgument(x:Boolean)" />
+    <x:Property sap2010:Annotation.AnnotationText="HTTP status code of the last attempt. 0 when no response was received (network error or timeout)." Name="out_int_StatusCode" Type="OutArgument(x:Int32)" />
+    <x:Property sap2010:Annotation.AnnotationText="Response body of the last attempt as text. Empty when no response was received." Name="out_str_ResponseBody" Type="OutArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Number of attempts made." Name="out_int_AttemptCount" Type="OutArgument(x:Int32)" />
+    <x:Property sap2010:Annotation.AnnotationText="Empty on success. Otherwise a short description of the failure (no headers, body or query string)." Name="out_str_ErrorMessage" Type="OutArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>HttpRequestWithRetry_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Reflection</x:String>
+      <x:String>System.Linq.Expressions</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Net.Http</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualStudio.Services.Common</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Composition</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Reflection.DispatchProxy</AssemblyReference>
+      <AssemblyReference>System.Reflection.TypeExtensions</AssemblyReference>
+      <AssemblyReference>System.Reflection.Metadata</AssemblyReference>
+      <AssemblyReference>UiPath.Excel.Activities.Design</AssemblyReference>
+      <AssemblyReference>System.Memory.Data</AssemblyReference>
+      <AssemblyReference>System.Console</AssemblyReference>
+      <AssemblyReference>System.Security.Permissions</AssemblyReference>
+      <AssemblyReference>System.Configuration.ConfigurationManager</AssemblyReference>
+      <AssemblyReference>System.ComponentModel</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.Private.Uri</AssemblyReference>
+      <AssemblyReference>System.Private.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Linq.Async</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.Collections.NonGeneric</AssemblyReference>
+      <AssemblyReference>System.Linq.Expressions</AssemblyReference>
+      <AssemblyReference>System.Private.DataContractSerialization</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Formatters</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Primitives</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Sends an HTTP request and retries transient failures (timeouts, network errors, HTTP 408, 429 and 5xx) with exponential backoff.&#xA;&#xA;Precondition: URL, and optionally method, headers and body.&#xA;Postcondition: Status code and response body returned. Throws BusinessRuleException for client errors (e.g. 400, 404, 422) and a System Exception for 401, 403, timeouts, 429 and 5xx after the last attempt, unless in_bool_ContinueOnError is True." DisplayName="HttpRequestWithRetry">
+  <Sequence.Variables>
+    <Variable x:TypeArguments="x:String" Name="str_ErrorType" />
+    <Variable x:TypeArguments="x:String" Name="str_SafeUrl" />
+  </Sequence.Variables>
+  <ui:LogMessage DisplayName="Log Message - Start" Level="Info" Message="[&quot;HttpRequestWithRetry started processing&quot;]" />
+  <ui:InvokeCode ContinueOnError="{x:Null}" DisplayName="Invoke Code - HTTP request with retry" Code="out_int_StatusCode = 0&#xD;&#xA;out_str_ResponseBody = &quot;&quot;&#xD;&#xA;out_int_AttemptCount = 0&#xD;&#xA;out_str_ErrorMessage = &quot;&quot;&#xD;&#xA;str_ErrorType = &quot;&quot;&#xD;&#xA;str_SafeUrl = &quot;&quot;&#xD;&#xA;&#xD;&#xA;Dim method As String = If(String.IsNullOrWhiteSpace(in_str_Method), &quot;GET&quot;, in_str_Method.Trim().ToUpper())&#xD;&#xA;Dim maxAttempts As Integer = If(in_int_MaxAttempts &lt;= 0, 3, in_int_MaxAttempts)&#xD;&#xA;Dim baseDelay As Integer = If(in_int_RetryDelaySeconds &lt;= 0, 2, in_int_RetryDelaySeconds)&#xD;&#xA;Dim timeoutSec As Integer = If(in_int_TimeoutSeconds &lt;= 0, 100, in_int_TimeoutSeconds)&#xD;&#xA;Dim unsafeMethod As Boolean = (method = &quot;POST&quot; OrElse method = &quot;PATCH&quot;)&#xD;&#xA;Dim uriObj As Uri = Nothing&#xD;&#xA;&#xD;&#xA;If Not Uri.TryCreate(If(in_str_Url, &quot;&quot;).Trim(), UriKind.Absolute, uriObj) Then&#xD;&#xA;    out_str_ErrorMessage = &quot;Invalid or empty URL.&quot;&#xD;&#xA;    str_ErrorType = &quot;BRE&quot;&#xD;&#xA;Else&#xD;&#xA;    str_SafeUrl = uriObj.GetLeftPart(UriPartial.Path)&#xD;&#xA;    Dim rand As New Random()&#xD;&#xA;    Dim attempt As Integer = 0&#xD;&#xA;    Dim done As Boolean = False&#xD;&#xA;&#xD;&#xA;    While Not done AndAlso attempt &lt; maxAttempts&#xD;&#xA;        attempt += 1&#xD;&#xA;        out_int_AttemptCount = attempt&#xD;&#xA;        Dim retryable As Boolean = False&#xD;&#xA;        Dim waitSec As Double = 0&#xD;&#xA;&#xD;&#xA;        Try&#xD;&#xA;            Using client As New System.Net.Http.HttpClient()&#xD;&#xA;                client.Timeout = TimeSpan.FromSeconds(timeoutSec)&#xD;&#xA;                Using req As New System.Net.Http.HttpRequestMessage(New System.Net.Http.HttpMethod(method), uriObj)&#xD;&#xA;                    If in_dict_Headers IsNot Nothing Then&#xD;&#xA;                        For Each kv As KeyValuePair(Of String, String) In in_dict_Headers&#xD;&#xA;                            req.Headers.TryAddWithoutValidation(kv.Key, kv.Value)&#xD;&#xA;                        Next&#xD;&#xA;                    End If&#xD;&#xA;                    If Not String.IsNullOrEmpty(in_str_Body) Then&#xD;&#xA;                        req.Content = New System.Net.Http.StringContent(in_str_Body, System.Text.Encoding.UTF8, If(String.IsNullOrWhiteSpace(in_str_ContentType), &quot;application/json&quot;, in_str_ContentType))&#xD;&#xA;                    End If&#xD;&#xA;&#xD;&#xA;                    Using resp As System.Net.Http.HttpResponseMessage = client.SendAsync(req).GetAwaiter().GetResult()&#xD;&#xA;                        Dim code As Integer = CInt(resp.StatusCode)&#xD;&#xA;                        out_int_StatusCode = code&#xD;&#xA;                        out_str_ResponseBody = resp.Content.ReadAsStringAsync().GetAwaiter().GetResult()&#xD;&#xA;&#xD;&#xA;                        If code &gt;= 200 AndAlso code &lt; 300 Then&#xD;&#xA;                            out_str_ErrorMessage = &quot;&quot;&#xD;&#xA;                            done = True&#xD;&#xA;                        Else&#xD;&#xA;                            out_str_ErrorMessage = &quot;HTTP &quot; &amp; code.ToString() &amp; &quot; from &quot; &amp; str_SafeUrl&#xD;&#xA;                            Dim transient As Boolean = (code = 408 OrElse code = 429 OrElse code &gt;= 500)&#xD;&#xA;                            If transient AndAlso (code = 429 OrElse Not unsafeMethod OrElse in_bool_RetryUnsafeMethods) Then&#xD;&#xA;                                retryable = True&#xD;&#xA;                                Dim ra As System.Net.Http.Headers.RetryConditionHeaderValue = resp.Headers.RetryAfter&#xD;&#xA;                                If ra IsNot Nothing Then&#xD;&#xA;                                    If ra.Delta.HasValue Then&#xD;&#xA;                                        waitSec = ra.Delta.Value.TotalSeconds&#xD;&#xA;                                    ElseIf ra.Date.HasValue Then&#xD;&#xA;                                        waitSec = Math.Max(0, (ra.Date.Value - DateTimeOffset.UtcNow).TotalSeconds)&#xD;&#xA;                                    End If&#xD;&#xA;                                End If&#xD;&#xA;                            Else&#xD;&#xA;                                done = True&#xD;&#xA;                            End If&#xD;&#xA;                        End If&#xD;&#xA;                    End Using&#xD;&#xA;                End Using&#xD;&#xA;            End Using&#xD;&#xA;        Catch ex As Exception&#xD;&#xA;            out_int_StatusCode = 0&#xD;&#xA;            out_str_ResponseBody = &quot;&quot;&#xD;&#xA;            out_str_ErrorMessage = &quot;Request to &quot; &amp; str_SafeUrl &amp; &quot; failed: &quot; &amp; ex.GetType().Name &amp; &quot; - &quot; &amp; ex.Message&#xD;&#xA;            retryable = (Not unsafeMethod) OrElse in_bool_RetryUnsafeMethods&#xD;&#xA;            If Not retryable Then done = True&#xD;&#xA;        End Try&#xD;&#xA;&#xD;&#xA;        If Not done AndAlso attempt &lt; maxAttempts AndAlso retryable Then&#xD;&#xA;            If waitSec &lt;= 0 Then waitSec = baseDelay * Math.Pow(2, attempt - 1)&#xD;&#xA;            waitSec = Math.Min(waitSec, 60) + rand.NextDouble()&#xD;&#xA;            System.Threading.Thread.Sleep(CInt(waitSec * 1000))&#xD;&#xA;        End If&#xD;&#xA;    End While&#xD;&#xA;&#xD;&#xA;    If out_int_StatusCode &gt;= 200 AndAlso out_int_StatusCode &lt; 300 Then&#xD;&#xA;        str_ErrorType = &quot;&quot;&#xD;&#xA;    ElseIf out_int_StatusCode = 0 OrElse out_int_StatusCode = 401 OrElse out_int_StatusCode = 403 OrElse out_int_StatusCode = 408 OrElse out_int_StatusCode = 429 OrElse out_int_StatusCode &gt;= 500 Then&#xD;&#xA;        str_ErrorType = &quot;SYS&quot;&#xD;&#xA;    Else&#xD;&#xA;        str_ErrorType = &quot;BRE&quot;&#xD;&#xA;    End If&#xD;&#xA;End If" >
+    <ui:InvokeCode.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_Method">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_Method" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_Url">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_Url" />
+        </InArgument>
+        <InArgument x:TypeArguments="scg:Dictionary(x:String, x:String)" x:Key="in_dict_Headers">
+          <VisualBasicValue x:TypeArguments="scg:Dictionary(x:String, x:String)" ExpressionText="in_dict_Headers" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_Body">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_Body" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_str_ContentType">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="in_str_ContentType" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_int_MaxAttempts">
+          <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="in_int_MaxAttempts" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_int_RetryDelaySeconds">
+          <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="in_int_RetryDelaySeconds" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Int32" x:Key="in_int_TimeoutSeconds">
+          <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="in_int_TimeoutSeconds" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Boolean" x:Key="in_bool_RetryUnsafeMethods">
+          <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="in_bool_RetryUnsafeMethods" />
+        </InArgument>
+        <InArgument x:TypeArguments="x:Boolean" x:Key="in_bool_ContinueOnError">
+          <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="in_bool_ContinueOnError" />
+        </InArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_int_StatusCode">
+          <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="out_int_StatusCode" />
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_str_ResponseBody">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="out_str_ResponseBody" />
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="out_int_AttemptCount">
+          <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="out_int_AttemptCount" />
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_str_ErrorMessage">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="out_str_ErrorMessage" />
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="str_ErrorType">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="str_ErrorType" />
+        </OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="str_SafeUrl">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="str_SafeUrl" />
+        </OutArgument>
+    </ui:InvokeCode.Arguments>
+  </ui:InvokeCode>
+  <ui:LogMessage DisplayName="Log Message - Result" Level="Info" Message="[&quot;HttpRequestWithRetry: &quot; &amp; str_SafeUrl &amp; &quot; -&gt; HTTP &quot; &amp; out_int_StatusCode.ToString &amp; &quot; after &quot; &amp; out_int_AttemptCount.ToString &amp; &quot; attempt(s)&quot;]" />
+  <If Condition="[str_ErrorType &lt;&gt; &quot;&quot;]" DisplayName="If - request failed">
+    <If.Then>
+      <Sequence DisplayName="Then - handle failure">
+        <ui:LogMessage DisplayName="Log Message - Failure" Level="Warn" Message="[out_str_ErrorMessage]" />
+        <If Condition="[Not in_bool_ContinueOnError]" DisplayName="If - throw on error">
+          <If.Then>
+            <If Condition="[str_ErrorType = &quot;BRE&quot;]" DisplayName="If - client error (BRE) or system error">
+              <If.Then>
+                <Throw DisplayName="Throw - BRE - HTTP client error" Exception="[New BusinessRuleException(out_str_ErrorMessage)]" />
+              </If.Then>
+              <If.Else>
+                <Throw DisplayName="Throw - System exception - HTTP failure" Exception="[New Exception(out_str_ErrorMessage)]" />
+              </If.Else>
+            </If>
+          </If.Then>
+        </If>
+      </Sequence>
+    </If.Then>
+  </If>
+  <ui:LogMessage DisplayName="Log Message - End" Level="Info" Message="[&quot;HttpRequestWithRetry completed processing&quot;]" />
+</Sequence>
+</Activity>

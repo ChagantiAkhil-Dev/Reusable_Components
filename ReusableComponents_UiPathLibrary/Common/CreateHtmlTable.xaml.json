@@ -1,0 +1,33 @@
+{
+  "DisplayName": "CreateHtmlTable",
+  "Tooltip": null,
+  "HelpLink": null,
+  "Color": null,
+  "OriginalIconFileName": null,
+  "Arguments": [
+    {
+      "Name": "out_HtmlTable",
+      "DisplayName": "out_HtmlTable",
+      "Category": null,
+      "Tooltip": "HTML table as a string. Use it as, or inside, an email body.",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_dt_Input",
+      "DisplayName": "in_dt_Input",
+      "Category": null,
+      "Tooltip": "DataTable to convert. Column names become the header row and each DataRow becomes a table row.",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    }
+  ]
+}

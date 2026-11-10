@@ -1,0 +1,6 @@
+{
+  "Name": "ReusableComponents_UiPathLibrary",
+  "ProjectType": "Library",
+  "Description": "Reusable Components UiPath Library",
+  "MainFile": "Common\\CustomLogging.xaml"
+}

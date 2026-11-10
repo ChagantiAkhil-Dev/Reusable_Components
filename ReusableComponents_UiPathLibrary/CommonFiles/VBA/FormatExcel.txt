@@ -1,0 +1,21 @@
+Sub FormatExcel(ByVal sName As String)
+Application.DisplayAlerts = False
+    Sheets(sName).Select
+    Cells.Select
+    Selection.Rows.AutoFit
+    Selection.Columns.AutoFit
+    With Selection
+        .HorizontalAlignment = xlGeneral
+        .VerticalAlignment = xlBottom
+        .WrapText = True
+        .Orientation = 0
+        .AddIndent = False
+        .IndentLevel = 0
+        .ShrinkToFit = False
+        .ReadingOrder = xlContext
+        .MergeCells = False
+    End With
+    Rows("1:1").Select
+    Selection.AutoFilter
+    Range("A1").Select
+End Sub

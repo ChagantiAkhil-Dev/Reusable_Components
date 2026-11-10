@@ -1,0 +1,500 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="LoopPdfPages" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:upap="clr-namespace:UiPath.PDF.Activities.PDF;assembly=UiPath.PDF.Activities" xmlns:upr="clr-namespace:UiPath.Platform.ResourceHandling;assembly=UiPath.Platform" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property sap2010:Annotation.AnnotationText="Folder for temporary PDFs created while reading page text. Must end with a backslash." Name="in_str_TempFolderPath" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Full path of the PDF being split." Name="in_str_InputFile" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Folder where split PDFs are saved. Must end with a backslash, because the file name is appended directly." Name="in_str_SplitFolderPath" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Page currently being processed (1-based). Advanced as pages are consumed." Name="io_int_LoopCounter" Type="InOutArgument(x:Int32)" />
+    <x:Property sap2010:Annotation.AnnotationText="Total number of pages in the input PDF." Name="in_int_TotalPDFpageCount" Type="InArgument(x:Int32)" />
+    <x:Property sap2010:Annotation.AnnotationText="Set to True when all pages have been processed, so the calling loop stops." Name="io_bool_ExitLoop" Type="InOutArgument(x:Boolean)" />
+    <x:Property sap2010:Annotation.AnnotationText="List of temporary PDF paths created during the loop, so the caller can delete them afterwards." Name="io_listStr_TempFiles" Type="InOutArgument(scg:List(x:String))" />
+    <x:Property sap2010:Annotation.AnnotationText="List that collects the paths of the split PDFs saved so far. New files are added to it." Name="io_listStr_SplitFiles" Type="InOutArgument(scg:List(x:String))" />
+    <x:Property sap2010:Annotation.AnnotationText="DataTable with a 'Combinations' column of page patterns such as 'Page {0} of {1}' (see PDF\Files\PageCombinations_And_VendorList.xlsx)." Name="in_dt_PageCombinations" Type="InArgument(sd:DataTable)" />
+  </x:Members>
+  <sap:VirtualizedContainerService.HintSize>1157,2093</sap:VirtualizedContainerService.HintSize>
+  <sap2010:WorkflowViewState.IdRef>ActivityBuilder_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <scg:List x:TypeArguments="x:String" Capacity="48">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+      <x:String>System.Reflection</x:String>
+      <x:String>System.Runtime.InteropServices</x:String>
+      <x:String>System.Activities.DynamicUpdate</x:String>
+      <x:String>UiPath.PDF.Activities.PDF</x:String>
+      <x:String>UiPath.PDF.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>System.Activities.Runtime.Collections</x:String>
+      <x:String>System.ComponentModel</x:String>
+      <x:String>System.Xml.Serialization</x:String>
+      <x:String>System.Linq.Expressions</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+    </scg:List>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <scg:List x:TypeArguments="AssemblyReference" Capacity="62">
+      <AssemblyReference>Microsoft.Bcl.AsyncInterfaces</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>NPOI</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Composition</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Configuration.ConfigurationManager</AssemblyReference>
+      <AssemblyReference>System.Console</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Linq.Async</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.Memory.Data</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Private.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.Private.Uri</AssemblyReference>
+      <AssemblyReference>System.Reflection.Metadata</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization</AssemblyReference>
+      <AssemblyReference>System.Security.Permissions</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.ServiceModel.Activities</AssemblyReference>
+      <AssemblyReference>System.ValueTuple</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>UiPath.MicrosoftOffice365.Activities.Design</AssemblyReference>
+      <AssemblyReference>UiPath.PDF.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities.Design</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+      <AssemblyReference>System.Data.SqlClient</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.EventBasedAsync</AssemblyReference>
+      <AssemblyReference>Microsoft.Win32.Primitives</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Primitives</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.Xml</AssemblyReference>
+      <AssemblyReference>UiPath.Excel.Activities.Design</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Formatters</AssemblyReference>
+      <AssemblyReference>System.Private.DataContractSerialization</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization.Primitives</AssemblyReference>
+      <AssemblyReference>System.Linq.Expressions</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+    </scg:List>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Loops through pdf pages and splits into multiple based on page numbers&#xA;&#xA;Precondition: Input pdf file&#xA;Postcondition: Splits the file if required and stores in a list" DisplayName="LoopPdfPages" sap:VirtualizedContainerService.HintSize="1191,5055" sap2010:WorkflowViewState.IdRef="Sequence_37">
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <TryCatch DisplayName="Try Catch - LoopPdfPages" sap:VirtualizedContainerService.HintSize="622,4955" sap2010:WorkflowViewState.IdRef="TryCatch_1">
+      <TryCatch.Try>
+        <Sequence DisplayName="LoopPdfPages" sap:VirtualizedContainerService.HintSize="620,4089" sap2010:WorkflowViewState.IdRef="Sequence_35">
+          <Sequence.Variables>
+            <Variable x:TypeArguments="x:String" Name="str_SplitPDfFileName" />
+          </Sequence.Variables>
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:LogMessage DisplayName="Log Message - Start" sap:VirtualizedContainerService.HintSize="586,175" sap2010:WorkflowViewState.IdRef="LogMessage_14" Level="Info" Message="[&quot;LoopPdfPages.xaml started processing&quot;]" />
+          <ui:InterruptibleWhile CurrentIndex="{x:Null}" Condition="[io_int_LoopCounter&lt;=in_int_TotalPDFpageCount and Not io_bool_ExitLoop]" DisplayName="While - counter&lt;=int_TotalPDFpageCount" sap:VirtualizedContainerService.HintSize="586,3854" sap2010:WorkflowViewState.IdRef="InterruptibleWhile_2" MaxIterations="[in_int_TotalPDFpageCount]">
+            <ui:InterruptibleWhile.Body>
+              <Sequence DisplayName="Body - Split" sap:VirtualizedContainerService.HintSize="584,3732" sap2010:WorkflowViewState.IdRef="Sequence_10">
+                <Sequence.Variables>
+                  <Variable x:TypeArguments="x:String" Name="str_ReadTempPDFText" />
+                  <Variable x:TypeArguments="x:String" Name="str_TempPdfFile" />
+                  <Variable x:TypeArguments="x:Int32" Name="int_NextPageCounter" />
+                  <Variable x:TypeArguments="x:Boolean" Name="bool_IsEmpty" />
+                </Sequence.Variables>
+                <sap:WorkflowViewStateService.ViewState>
+                  <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                    <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                    <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                  </scg:Dictionary>
+                </sap:WorkflowViewStateService.ViewState>
+                <ui:MultipleAssign DisplayName="Multiple Assign - pdf" sap:VirtualizedContainerService.HintSize="550,149" sap2010:WorkflowViewState.IdRef="MultipleAssign_15">
+                  <ui:MultipleAssign.AssignOperations>
+                    <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+                      <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_25">
+                        <ui:AssignOperation.To>
+                          <OutArgument x:TypeArguments="x:String">[str_TempPdfFile]</OutArgument>
+                        </ui:AssignOperation.To>
+                        <ui:AssignOperation.Value>
+                          <InArgument x:TypeArguments="x:String">[in_str_TempFolderPath+"Temp_"+io_int_LoopCounter.ToString+".pdf"]</InArgument>
+                        </ui:AssignOperation.Value>
+                      </ui:AssignOperation>
+                    </scg:List>
+                  </ui:MultipleAssign.AssignOperations>
+                </ui:MultipleAssign>
+                <upap:ExtractPDFPageRange OutputFile="{x:Null}" ResourceFile="{x:Null}" DisplayName="Extract PDF Page Range - str_TempPdfFile" FileName="[in_str_InputFile]" sap:VirtualizedContainerService.HintSize="550,176" sap2010:WorkflowViewState.IdRef="ExtractPDFPageRange_1" OutputFileName="[str_TempPdfFile]" Range="[io_int_LoopCounter.ToString]">
+                  <upap:ExtractPDFPageRange.Item>
+                    <upap:ItemArgument x:TypeArguments="upr:IResource" ResourceFile="{x:Null}" FileName="[in_str_InputFile]" />
+                  </upap:ExtractPDFPageRange.Item>
+                </upap:ExtractPDFPageRange>
+                <ui:ReadPDFText PreserveFormatting="{x:Null}" ResourceFile="{x:Null}" DisplayName="Read PDF Text - str_ReadTempPDFText" FileName="[str_TempPdfFile]" sap:VirtualizedContainerService.HintSize="550,124" sap2010:WorkflowViewState.IdRef="ReadPDFText_2" Range="All" Text="[str_ReadTempPDFText]">
+                  <ui:ReadPDFText.Item>
+                    <upap:ItemArgument x:TypeArguments="upr:IResource" ResourceFile="{x:Null}" FileName="[str_TempPdfFile]" />
+                  </ui:ReadPDFText.Item>
+                </ui:ReadPDFText>
+                <AddToCollection x:TypeArguments="x:String" Collection="[io_listStr_TempFiles]" DisplayName="Add To Collection - str_TempPdfFile" sap:VirtualizedContainerService.HintSize="550,54" sap2010:WorkflowViewState.IdRef="AddToCollection`1_3" Item="[str_TempPdfFile]" />
+                <If Condition="[Not String.IsNullOrEmpty(str_ReadTempPDFText.Trim)]" DisplayName="If - Pdf readable" sap:VirtualizedContainerService.HintSize="550,3169" sap2010:WorkflowViewState.IdRef="If_18">
+                  <sap:WorkflowViewStateService.ViewState>
+                    <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                      <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                      <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                    </scg:Dictionary>
+                  </sap:WorkflowViewStateService.ViewState>
+                  <If.Then>
+                    <Sequence DisplayName="Then" sap:VirtualizedContainerService.HintSize="548,2509" sap2010:WorkflowViewState.IdRef="Sequence_40">
+                      <Sequence.Variables>
+                        <Variable x:TypeArguments="x:Boolean" Name="bool_PageCombinationFound" />
+                      </Sequence.Variables>
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="CheckPageCombinations.xaml - Invoke Workflow File" sap:VirtualizedContainerService.HintSize="514,177" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_6" UnSafe="False" WorkflowFileName="PDF\SplitPdfs\CheckPageCombinations.xaml">
+                        <ui:InvokeWorkflowFile.Arguments>
+                          <InArgument x:TypeArguments="x:Int32" x:Key="in_int_FirstNumber">[io_int_LoopCounter]</InArgument>
+                          <InArgument x:TypeArguments="x:Int32" x:Key="in_int_SecondNumber">[in_int_TotalPDFpageCount]</InArgument>
+                          <InArgument x:TypeArguments="x:String" x:Key="in_str_PdfText">[str_ReadTempPDFText]</InArgument>
+                          <OutArgument x:TypeArguments="x:Boolean" x:Key="out_bool_MatchFound">[bool_PageCombinationFound]</OutArgument>
+                          <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dt_PageCombinations">[in_dt_PageCombinations]</InArgument>
+                        </ui:InvokeWorkflowFile.Arguments>
+                      </ui:InvokeWorkflowFile>
+                      <If Condition="[bool_PageCombinationFound]" DisplayName="If - Page 1 of Max" sap:VirtualizedContainerService.HintSize="514,2272" sap2010:WorkflowViewState.IdRef="If_6">
+                        <sap:WorkflowViewStateService.ViewState>
+                          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                            <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                          </scg:Dictionary>
+                        </sap:WorkflowViewStateService.ViewState>
+                        <If.Then>
+                          <Sequence DisplayName="Sequence - 1 pdf - 1 invoice - Multiple pages" sap:VirtualizedContainerService.HintSize="512,811" sap2010:WorkflowViewState.IdRef="Sequence_20">
+                            <sap:WorkflowViewStateService.ViewState>
+                              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                              </scg:Dictionary>
+                            </sap:WorkflowViewStateService.ViewState>
+                            <ui:LogMessage DisplayName="Log Message - Cnd 1" sap:VirtualizedContainerService.HintSize="478,175" sap2010:WorkflowViewState.IdRef="LogMessage_15" Level="Info" Message="[&quot;Condition 1 met: Page &quot;+io_int_LoopCounter.ToString+&quot; of &quot;+in_int_TotalPDFpageCount.ToString+&quot; - file to saved&quot;]" />
+                            <Assign DisplayName="Assign - str_SplitPDfFileName" sap:VirtualizedContainerService.HintSize="478,175" sap2010:WorkflowViewState.IdRef="Assign_15">
+                              <Assign.To>
+                                <OutArgument x:TypeArguments="x:String">[str_SplitPDfFileName]</OutArgument>
+                              </Assign.To>
+                              <Assign.Value>
+                                <InArgument x:TypeArguments="x:String">[in_str_SplitFolderPath+Path.GetFileNameWithoutExtension(in_str_InputFile)+"_"+in_int_TotalPDFpageCount.ToString+".pdf"]</InArgument>
+                              </Assign.Value>
+                            </Assign>
+                            <upap:ExtractPDFPageRange OutputFile="{x:Null}" ResourceFile="{x:Null}" DisplayName="Extract PDF Page Range - str_SplitPDfFileName" FileName="[in_str_InputFile]" sap:VirtualizedContainerService.HintSize="478,176" sap2010:WorkflowViewState.IdRef="ExtractPDFPageRange_7" OutputFileName="[str_SplitPDfFileName]" Range="[io_int_LoopCounter.ToString+&quot;-&quot;+in_int_TotalPDFpageCount.ToString]">
+                              <upap:ExtractPDFPageRange.Item>
+                                <upap:ItemArgument x:TypeArguments="upr:IResource" ResourceFile="{x:Null}" FileName="[in_str_InputFile]" />
+                              </upap:ExtractPDFPageRange.Item>
+                              <sap:WorkflowViewStateService.ViewState>
+                                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                  <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                                </scg:Dictionary>
+                              </sap:WorkflowViewStateService.ViewState>
+                            </upap:ExtractPDFPageRange>
+                            <AddToCollection x:TypeArguments="x:String" Collection="[io_listStr_SplitFiles]" DisplayName="Add To Collection - str_SplitPDfFileName" sap:VirtualizedContainerService.HintSize="478,54" sap2010:WorkflowViewState.IdRef="AddToCollection`1_7" Item="[str_SplitPDfFileName]" />
+                            <ui:MultipleAssign DisplayName="Multiple Assign - Counter" sap:VirtualizedContainerService.HintSize="478,171" sap2010:WorkflowViewState.IdRef="MultipleAssign_14">
+                              <ui:MultipleAssign.AssignOperations>
+                                <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+                                  <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_24">
+                                    <ui:AssignOperation.To>
+                                      <OutArgument x:TypeArguments="x:Boolean">[io_bool_ExitLoop]</OutArgument>
+                                    </ui:AssignOperation.To>
+                                    <ui:AssignOperation.Value>
+                                      <InArgument x:TypeArguments="x:Boolean">True</InArgument>
+                                    </ui:AssignOperation.Value>
+                                  </ui:AssignOperation>
+                                  <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_34">
+                                    <ui:AssignOperation.To>
+                                      <OutArgument x:TypeArguments="x:Int32">[io_int_LoopCounter]</OutArgument>
+                                    </ui:AssignOperation.To>
+                                    <ui:AssignOperation.Value>
+                                      <InArgument x:TypeArguments="x:Int32">[io_int_LoopCounter+1]</InArgument>
+                                    </ui:AssignOperation.Value>
+                                  </ui:AssignOperation>
+                                </scg:List>
+                              </ui:MultipleAssign.AssignOperations>
+                            </ui:MultipleAssign>
+                          </Sequence>
+                        </If.Then>
+                        <If.Else>
+                          <Sequence DisplayName="Else" sap:VirtualizedContainerService.HintSize="512,1299" sap2010:WorkflowViewState.IdRef="Sequence_41">
+                            <sap:WorkflowViewStateService.ViewState>
+                              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                              </scg:Dictionary>
+                            </sap:WorkflowViewStateService.ViewState>
+                            <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="CheckPageCombinations.xaml - Invoke Workflow File" sap:VirtualizedContainerService.HintSize="478,177" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_7" UnSafe="False" WorkflowFileName="PDF\SplitPdfs\CheckPageCombinations.xaml">
+                              <ui:InvokeWorkflowFile.Arguments>
+                                <InArgument x:TypeArguments="x:Int32" x:Key="in_int_FirstNumber">[io_int_LoopCounter]</InArgument>
+                                <InArgument x:TypeArguments="x:Int32" x:Key="in_int_SecondNumber">[io_int_LoopCounter]</InArgument>
+                                <InArgument x:TypeArguments="x:String" x:Key="in_str_PdfText">[str_ReadTempPDFText]</InArgument>
+                                <OutArgument x:TypeArguments="x:Boolean" x:Key="out_bool_MatchFound">[bool_PageCombinationFound]</OutArgument>
+                                <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dt_PageCombinations">[in_dt_PageCombinations]</InArgument>
+                              </ui:InvokeWorkflowFile.Arguments>
+                            </ui:InvokeWorkflowFile>
+                            <If Condition="[bool_PageCombinationFound]" DisplayName="If - Page loopCount of loopCount" sap:VirtualizedContainerService.HintSize="478,1062" sap2010:WorkflowViewState.IdRef="If_13">
+                              <sap:WorkflowViewStateService.ViewState>
+                                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                  <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                                </scg:Dictionary>
+                              </sap:WorkflowViewStateService.ViewState>
+                              <If.Then>
+                                <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="Invoke EachPageAsInvoice workflow" sap:VirtualizedContainerService.HintSize="450,145" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="PDF\SplitPdfs\EachPageAsInvoice.xaml">
+                                  <ui:InvokeWorkflowFile.Arguments>
+                                    <InOutArgument x:TypeArguments="x:Int32" x:Key="io_int_LoopCounter">[io_int_LoopCounter]</InOutArgument>
+                                    <InOutArgument x:TypeArguments="x:Int32" x:Key="int_NextPageCounter">[int_NextPageCounter]</InOutArgument>
+                                    <InOutArgument x:TypeArguments="x:Boolean" x:Key="bool_IsEmpty">[bool_IsEmpty]</InOutArgument>
+                                    <InArgument x:TypeArguments="x:Int32" x:Key="in_int_TotalPDFpageCount">[in_int_TotalPDFpageCount]</InArgument>
+                                    <InOutArgument x:TypeArguments="x:String" x:Key="str_SplitPDfFileName">[str_SplitPDfFileName]</InOutArgument>
+                                    <InArgument x:TypeArguments="x:String" x:Key="in_str_SplitFolderPath">[in_str_SplitFolderPath]</InArgument>
+                                    <InArgument x:TypeArguments="x:String" x:Key="in_str_InputFile">[in_str_InputFile]</InArgument>
+                                    <InArgument x:TypeArguments="scg:List(x:String)" x:Key="io_listStr_SplitFiles">[io_listStr_SplitFiles]</InArgument>
+                                    <InOutArgument x:TypeArguments="x:String" x:Key="str_ReadTempPDFText">[str_ReadTempPDFText]</InOutArgument>
+                                    <OutArgument x:TypeArguments="x:Boolean" x:Key="io_bool_ExitLoop">[io_bool_ExitLoop]</OutArgument>
+                                  </ui:InvokeWorkflowFile.Arguments>
+                                </ui:InvokeWorkflowFile>
+                              </If.Then>
+                              <If.Else>
+                                <Sequence DisplayName="Else" sap:VirtualizedContainerService.HintSize="450,733" sap2010:WorkflowViewState.IdRef="Sequence_43">
+                                  <sap:WorkflowViewStateService.ViewState>
+                                    <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                      <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                    </scg:Dictionary>
+                                  </sap:WorkflowViewStateService.ViewState>
+                                  <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="CheckPageCombinations.xaml - Invoke Workflow File" sap:VirtualizedContainerService.HintSize="416,177" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_8" UnSafe="False" WorkflowFileName="PDF\SplitPdfs\CheckPageCombinations.xaml">
+                                    <ui:InvokeWorkflowFile.Arguments>
+                                      <InArgument x:TypeArguments="x:Int32" x:Key="in_int_FirstNumber">1</InArgument>
+                                      <InArgument x:TypeArguments="x:Int32" x:Key="in_int_SecondNumber">1</InArgument>
+                                      <InArgument x:TypeArguments="x:String" x:Key="in_str_PdfText">[str_ReadTempPDFText]</InArgument>
+                                      <OutArgument x:TypeArguments="x:Boolean" x:Key="out_bool_MatchFound">[bool_PageCombinationFound]</OutArgument>
+                                      <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dt_PageCombinations">[in_dt_PageCombinations]</InArgument>
+                                    </ui:InvokeWorkflowFile.Arguments>
+                                  </ui:InvokeWorkflowFile>
+                                  <If Condition="[bool_PageCombinationFound]" DisplayName="If - Each page is &quot;Page 1 0f 1&quot;" sap:VirtualizedContainerService.HintSize="416,496" sap2010:WorkflowViewState.IdRef="If_19">
+                                    <sap:WorkflowViewStateService.ViewState>
+                                      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                                        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                                        <x:Boolean x:Key="IsPinned">False</x:Boolean>
+                                      </scg:Dictionary>
+                                    </sap:WorkflowViewStateService.ViewState>
+                                    <If.Then>
+                                      <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="Invoke EachPageAsInvoice workflow" sap:VirtualizedContainerService.HintSize="334,145" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_5" UnSafe="False" WorkflowFileName="PDF\SplitPdfs\EachPageAsInvoice.xaml">
+                                        <ui:InvokeWorkflowFile.Arguments>
+                                          <InOutArgument x:TypeArguments="x:Int32" x:Key="io_int_LoopCounter">[io_int_LoopCounter]</InOutArgument>
+                                          <InOutArgument x:TypeArguments="x:Int32" x:Key="int_NextPageCounter">[int_NextPageCounter]</InOutArgument>
+                                          <InOutArgument x:TypeArguments="x:Boolean" x:Key="bool_IsEmpty">[bool_IsEmpty]</InOutArgument>
+                                          <InArgument x:TypeArguments="x:Int32" x:Key="in_int_TotalPDFpageCount">[in_int_TotalPDFpageCount]</InArgument>
+                                          <InOutArgument x:TypeArguments="x:String" x:Key="str_SplitPDfFileName">[str_SplitPDfFileName]</InOutArgument>
+                                          <InArgument x:TypeArguments="x:String" x:Key="in_str_SplitFolderPath">[in_str_SplitFolderPath]</InArgument>
+                                          <InArgument x:TypeArguments="x:String" x:Key="in_str_InputFile">[in_str_InputFile]</InArgument>
+                                          <InArgument x:TypeArguments="scg:List(x:String)" x:Key="io_listStr_SplitFiles">[io_listStr_SplitFiles]</InArgument>
+                                          <InOutArgument x:TypeArguments="x:String" x:Key="str_ReadTempPDFText">[str_ReadTempPDFText]</InOutArgument>
+                                          <OutArgument x:TypeArguments="x:Boolean" x:Key="io_bool_ExitLoop">[io_bool_ExitLoop]</OutArgument>
+                                        </ui:InvokeWorkflowFile.Arguments>
+                                      </ui:InvokeWorkflowFile>
+                                    </If.Then>
+                                    <If.Else>
+                                      <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" DisplayName="Invoke MultiplePageAsInvoice workflow" sap:VirtualizedContainerService.HintSize="334,145" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_3" UnSafe="False" WorkflowFileName="PDF\SplitPdfs\MultiplePageAsInvoice.xaml">
+                                        <ui:InvokeWorkflowFile.Arguments>
+                                          <InOutArgument x:TypeArguments="x:Int32" x:Key="io_int_LoopCounter">[io_int_LoopCounter]</InOutArgument>
+                                          <InOutArgument x:TypeArguments="x:Int32" x:Key="int_NextPageCounter">[int_NextPageCounter]</InOutArgument>
+                                          <InArgument x:TypeArguments="x:Int32" x:Key="in_int_TotalPDFpageCount">[in_int_TotalPDFpageCount]</InArgument>
+                                          <InOutArgument x:TypeArguments="x:Boolean" x:Key="io_bool_ExitLoop">[io_bool_ExitLoop]</InOutArgument>
+                                          <InArgument x:TypeArguments="x:String" x:Key="in_str_SplitFolderPath">[in_str_SplitFolderPath]</InArgument>
+                                          <InArgument x:TypeArguments="x:String" x:Key="in_str_InputFile">[in_str_InputFile]</InArgument>
+                                          <InArgument x:TypeArguments="scg:List(x:String)" x:Key="io_listStr_SplitFiles">[io_listStr_SplitFiles]</InArgument>
+                                          <InArgument x:TypeArguments="x:String" x:Key="in_str_ReadTempPDFText">[str_ReadTempPDFText]</InArgument>
+                                          <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dt_PageCombinations">[in_dt_PageCombinations]</InArgument>
+                                        </ui:InvokeWorkflowFile.Arguments>
+                                      </ui:InvokeWorkflowFile>
+                                    </If.Else>
+                                  </If>
+                                </Sequence>
+                              </If.Else>
+                            </If>
+                          </Sequence>
+                        </If.Else>
+                      </If>
+                    </Sequence>
+                  </If.Then>
+                  <If.Else>
+                    <Sequence DisplayName="Sequence - No text as page" sap:VirtualizedContainerService.HintSize="548,498" sap2010:WorkflowViewState.IdRef="Sequence_36">
+                      <sap:WorkflowViewStateService.ViewState>
+                        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                        </scg:Dictionary>
+                      </sap:WorkflowViewStateService.ViewState>
+                      <ui:LogMessage DisplayName="Log Message - Pdf is not readable" sap:VirtualizedContainerService.HintSize="514,175" sap2010:WorkflowViewState.IdRef="LogMessage_13" Level="Info" Message="[&quot;Pdf is not in readable format&quot;]" />
+                      <Throw DisplayName="Throw - BRE - Scanned file" Exception="[New BusinessRuleException(&quot;Pdf file is not in readable format.&quot;)]" sap:VirtualizedContainerService.HintSize="514,123" sap2010:WorkflowViewState.IdRef="Throw_1" />
+                      <ui:MultipleAssign DisplayName="Multiple Assign - Count" sap:VirtualizedContainerService.HintSize="514,140" sap2010:WorkflowViewState.IdRef="MultipleAssign_26">
+                        <ui:MultipleAssign.AssignOperations>
+                          <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+                            <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_45">
+                              <ui:AssignOperation.To>
+                                <OutArgument x:TypeArguments="x:Int32">[io_int_LoopCounter]</OutArgument>
+                              </ui:AssignOperation.To>
+                              <ui:AssignOperation.Value>
+                                <InArgument x:TypeArguments="x:Int32">[io_int_LoopCounter+1]</InArgument>
+                              </ui:AssignOperation.Value>
+                            </ui:AssignOperation>
+                          </scg:List>
+                        </ui:MultipleAssign.AssignOperations>
+                      </ui:MultipleAssign>
+                    </Sequence>
+                  </If.Else>
+                </If>
+              </Sequence>
+            </ui:InterruptibleWhile.Body>
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                <x:Boolean x:Key="IsPinned">False</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+          </ui:InterruptibleWhile>
+        </Sequence>
+      </TryCatch.Try>
+      <TryCatch.Catches>
+        <Catch x:TypeArguments="s:Exception" sap:VirtualizedContainerService.HintSize="805,21" sap2010:WorkflowViewState.IdRef="Catch`1_1">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ActivityAction x:TypeArguments="s:Exception">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" />
+            </ActivityAction.Argument>
+            <Sequence DisplayName="Catch Sequence - Excp - LoopPdfPages" sap:VirtualizedContainerService.HintSize="620,319" sap2010:WorkflowViewState.IdRef="Sequence_38">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:MultipleAssign DisplayName="Multiple Assign - Excp - Args" sap:VirtualizedContainerService.HintSize="586,211" sap2010:WorkflowViewState.IdRef="MultipleAssign_29">
+                <ui:MultipleAssign.AssignOperations>
+                  <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_48">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="scg:List(x:String)">[io_listStr_SplitFiles]</OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="scg:List(x:String)">[io_listStr_SplitFiles]</InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_49">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="x:Int32">[io_int_LoopCounter]</OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="x:Int32">[io_int_LoopCounter]</InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_50">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="x:Boolean">[io_bool_ExitLoop]</OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="x:Boolean">[io_bool_ExitLoop]</InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                  </scg:List>
+                </ui:MultipleAssign.AssignOperations>
+              </ui:MultipleAssign>
+              <Rethrow DisplayName="Rethrow - Excp" sap:VirtualizedContainerService.HintSize="586,48" sap2010:WorkflowViewState.IdRef="Rethrow_1" />
+            </Sequence>
+          </ActivityAction>
+        </Catch>
+        <Catch x:TypeArguments="ui:BusinessRuleException" sap:VirtualizedContainerService.HintSize="708,21" sap2010:WorkflowViewState.IdRef="Catch`1_2">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">False</x:Boolean>
+              <x:Boolean x:Key="IsPinned">False</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ActivityAction x:TypeArguments="ui:BusinessRuleException">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="ui:BusinessRuleException" Name="exception" />
+            </ActivityAction.Argument>
+            <Sequence DisplayName="Catch Sequence - BRExcp - LoopPdfPages" sap:VirtualizedContainerService.HintSize="620,319" sap2010:WorkflowViewState.IdRef="Sequence_39">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:MultipleAssign DisplayName="Multiple Assign - BRE - Args" sap:VirtualizedContainerService.HintSize="586,211" sap2010:WorkflowViewState.IdRef="MultipleAssign_28">
+                <ui:MultipleAssign.AssignOperations>
+                  <scg:List x:TypeArguments="ui:AssignOperation" Capacity="4">
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_47">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="scg:List(x:String)">[io_listStr_SplitFiles]</OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="scg:List(x:String)">[io_listStr_SplitFiles]</InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_51">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="x:Int32">[io_int_LoopCounter]</OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="x:Int32">[io_int_LoopCounter]</InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                    <ui:AssignOperation sap2010:WorkflowViewState.IdRef="AssignOperation_52">
+                      <ui:AssignOperation.To>
+                        <OutArgument x:TypeArguments="x:Boolean">[io_bool_ExitLoop]</OutArgument>
+                      </ui:AssignOperation.To>
+                      <ui:AssignOperation.Value>
+                        <InArgument x:TypeArguments="x:Boolean">[io_bool_ExitLoop]</InArgument>
+                      </ui:AssignOperation.Value>
+                    </ui:AssignOperation>
+                  </scg:List>
+                </ui:MultipleAssign.AssignOperations>
+              </ui:MultipleAssign>
+              <Rethrow DisplayName="Rethrow - BRExcp" sap:VirtualizedContainerService.HintSize="586,48" sap2010:WorkflowViewState.IdRef="Rethrow_2" />
+            </Sequence>
+          </ActivityAction>
+        </Catch>
+      </TryCatch.Catches>
+    </TryCatch>
+  </Sequence>
+</Activity>

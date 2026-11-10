@@ -1,0 +1,69 @@
+{
+  "DisplayName": "SplitPDF",
+  "Tooltip": null,
+  "HelpLink": null,
+  "Color": null,
+  "OriginalIconFileName": null,
+  "Arguments": [
+    {
+      "Name": "io_str_InvoiceType",
+      "DisplayName": "io_str_InvoiceType",
+      "Category": null,
+      "Tooltip": "Provide if \"PO Invoice\" or \"Non-PO Invoice\"",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_str_InputFile",
+      "DisplayName": "in_str_InputFile",
+      "Category": null,
+      "Tooltip": "Provide the Input PDF file path",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_str_SplitFolderPath",
+      "DisplayName": "in_str_SplitFolderPath",
+      "Category": null,
+      "Tooltip": "Provide the Output folder path",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "in_str_TempFolderPath",
+      "DisplayName": "in_str_TempFolderPath",
+      "Category": null,
+      "Tooltip": "Provide the Temp folder location",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    },
+    {
+      "Name": "out_listStr_Pdfs",
+      "DisplayName": "out_listStr_Pdfs",
+      "Category": null,
+      "Tooltip": "Provide output folder path to save split pdfs",
+      "Placeholder": null,
+      "Widget": null,
+      "IsRequired": false,
+      "IsPrincipal": true,
+      "ArgumentType": 0,
+      "DataSourceItems": null
+    }
+  ]
+}
